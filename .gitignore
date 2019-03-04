@@ -29,3 +29,5 @@ wheels/
 .venv
 venv/
 ENV/
+
+.idea

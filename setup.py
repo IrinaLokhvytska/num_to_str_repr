@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="num_to_str_repr",
-    version="0.0.1",
+    version="0.0.2",
     author="Iryna Lokhvytska",
     author_email="ilokh@softserveinc.com",
-    description="A general code for the sstool.",
+    description="Simple module that convert the number to the Russian string representation.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/IrinaLokhvytska/num_to_str_repr",

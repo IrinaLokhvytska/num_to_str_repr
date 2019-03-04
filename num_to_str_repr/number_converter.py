@@ -6,7 +6,7 @@ import re
 class NumberConverter:
     def __init__(self, number):
         self.number = number
-        self.dict_numbers = dict()
+        self.dict_numbers = {}
         self.__complete_dictionary()
 
     simple_number = (
@@ -60,7 +60,7 @@ class NumberConverter:
 
     def __complete_dictionary(self):
         for i in range(10):
-            self.dict_numbers[i] = list()
+            self.dict_numbers[i] = []
             self.dict_numbers[i].append(self.simple_number[i])
             if i == 0:
                 continue
@@ -70,45 +70,45 @@ class NumberConverter:
 
     def __complete_dozen_for_one(self, i):
         end = 'надцать'
-        dozens = list()
+        dozens = []
         helper = {
             0: 'десять',
-            1: self.simple_number[1] + end,
-            2: self.simple_number[2][:-1] + 'е' + end,
-            3: self.simple_number[3] + end
+            1: '{0}{1}'.format(self.simple_number[1], end),
+            2: '{0}{1}{2}'.format(self.simple_number[2][:-1], 'е', end),
+            3: '{0}{1}'.format(self.simple_number[3], end),
         }
         for y in range(10):
             if y in helper:
                 dozens.append(helper[y])
             else:
-                dozens.append(self.simple_number[y][:-1] + end)
+                dozens.append('{0}{1}'.format(self.simple_number[y][:-1], end))
         self.dict_numbers[i].append(dozens)
 
     def __complete_dozen(self, i):
         helper = {
-            2: self.simple_number[2] + 'дцать',
-            3: self.simple_number[3] + 'дцать',
+            2: '{0}{1}'.format(self.simple_number[2], 'дцать'),
+            3: '{0}{1}'.format(self.simple_number[3], 'дцать'),
             4: 'сорок',
-            9: self.simple_number[9][:-2] + 'носто'
+            9: '{0}{1}'.format(self.simple_number[9][:-2], 'носто'),
         }
         if i in helper:
             self.dict_numbers[i].append(helper[i])
         elif i == 1:
             self.__complete_dozen_for_one(i)
         else:
-            self.dict_numbers[i].append(self.simple_number[i] + 'десят')
+            self.dict_numbers[i].append('{0}{1}'.format(self.simple_number[i], 'десят'))
 
     def __complete_hundred(self, i):
         helper = {
           1: 'сто',
-          2: self.simple_number[2][:-1] + 'ести',
-          3: self.simple_number[3] + 'ста',
-          4: self.simple_number[4] + 'ста'
+          2: '{0}{1}'.format(self.simple_number[2][:-1], 'ести'),
+          3: '{0}{1}'.format(self.simple_number[3], 'ста'),
+          4: '{0}{1}'.format(self.simple_number[4], 'ста')
         }
         if i in helper:
             self.dict_numbers[i].append(helper[i])
         else:
-            self.dict_numbers[i].append(self.simple_number[i] + 'сот')
+            self.dict_numbers[i].append('{0}{1}'.format(self.simple_number[i], 'сот'))
 
     def __get_simple_number(self, n):
         return self.dict_numbers[int(n)][0]
@@ -141,7 +141,7 @@ class NumberConverter:
 
     def __get_hundread_dict(self, n):
         result = self.dict_numbers[int(n[0])][2]
-        result += ' ' + self.__get_dozen_number(n[1:])
+        result += ' {}'.format(self.__get_dozen_number(n[1:]))
         return result
 
     def __get_hundred_number(self, n):
@@ -156,7 +156,7 @@ class NumberConverter:
         return '000'
 
     def __split_number(self):
-        res = list()
+        res = []
         n_without_zero = str(int(self.number))
         convert_function = (
           (self.__get_hundred_number, 3),
@@ -168,13 +168,13 @@ class NumberConverter:
             slice_num = convert_function[x][1]
             res.append(convert_function[x][0](n_without_zero[0: slice_num]))
             n_without_zero = n_without_zero[slice_num:]
-        return (res)
+        return res
 
     def convert(self):
         numbers = self.__split_number()
         length = int(len(numbers))
         if length > 34:
-            return 'The number ' + self.number + ' too big'
+            return 'The number {} too big'.format(self.number)
         output = ''
         for i in numbers:
             if i == '000':
@@ -218,4 +218,4 @@ class NumberConverter:
         for k in ends:
             if re.fullmatch(k, simple_number[index]):
                 return self.number_clarification[length] + ends[k]
-        return self.number_clarification[length] + 'ов'
+        return '{0}{1}'.format(self.number_clarification[length], 'ов')
