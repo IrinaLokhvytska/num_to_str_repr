@@ -2,28 +2,42 @@
 ''' Convert number to string '''
 import re
 
-from constant import NUMBER_CLARIFICATION, NUMBER_DICTS
+from constant import (
+    NUMBER_SYSTEM_NAME,
+    NUMBER_DICTS,
+    END_OF_STRING,
+    ZEROS
+)
 
 
 class NumberConverter:
 
+    def __init__(self, language="RU"):
+        if language not in ("RU", "UA"):
+            raise TypeError(f"The language is not supported: {language}")
+        self.number_system_name = NUMBER_SYSTEM_NAME[language]
+        self.number_dict = NUMBER_DICTS[language]
+        self.thousand_end  = END_OF_STRING["thousand"][language]
+        self.million_end  = END_OF_STRING["million"][language]
+        self.end_of_string = END_OF_STRING["end_of_string"][language]
+
+
     def __get_simple_number(self, n):
-        return NUMBER_DICTS[int(n)][0]
+        return self.number_dict[int(n)][0]
 
     def __get_from_ten_to_twenty(self, n):
         n = str(int(n))
         first, second = map(int, n)
-        return NUMBER_DICTS[first][1][second]
+        return self.number_dict[first][1][second]
 
     def __get_dozen_dict(self, n):
         n = str(int(n))
         first, second = map(int, n)
         if first and second != 0:
-            result = NUMBER_DICTS[first][1]
-            result += ' ' + NUMBER_DICTS[second][0]
+            result = self.number_dict[first][1]
+            result += f" {self.number_dict[second][0]}"
             return result
-        else:
-            return NUMBER_DICTS[first][1]
+        return self.number_dict[first][1]
 
     def __get_dozen_number(self, n):
         num_range = {
@@ -34,11 +48,11 @@ class NumberConverter:
         for key, value in num_range.items():
             if int(n) in range(value[0], value[1]):
                 return key(n)
-        return ''
+        return ""
 
     def __get_hundread_dict(self, n):
-        result = NUMBER_DICTS[int(n[0])][2]
-        result += ' {}'.format(self.__get_dozen_number(n[1:]))
+        result = self.number_dict[int(n[0])][2]
+        result += f" {self.__get_dozen_number(n[1:])}"
         return result
 
     def __get_hundred_number(self, n):
@@ -50,7 +64,7 @@ class NumberConverter:
         for key, value in num_range.items():
             if int(n) in range(value[0], value[1]):
                 return key(n)
-        return '000'
+        return ZEROS
 
     def __split_number(self, number: int) -> list:
         """ Split number to simple, dozen and hundred """
@@ -69,13 +83,17 @@ class NumberConverter:
         return res
 
     def convert(self, number):
+        try:
+            int(number)
+        except ValueError:
+            raise ValueError(f"The {number} is not number")
         numbers = self.__split_number(number)
         length = int(len(numbers))
         if length > 34:
-            return 'The number {} too big'.format(number)
-        output = ''
+            raise ValueError(f"The number {number} is too big")
+        output = ""
         for i in numbers:
-            if i == '000':
+            if i == ZEROS:
                 length -= 1
                 continue
             output += self.__add_clarification(i, length)
@@ -83,36 +101,27 @@ class NumberConverter:
         return output.replace('  ', ' ')
 
     def __add_clarification(self, n, length):
-        output = ''
         if length == 2:
-            output += self.__check_end_of_thousand(n, length) + ' '
+            return f"{self.__check_end_of_thousand(n, length)} "
         elif length > 2:
-            output += n + ' ' + self.__check_end_of_string(n, length) + ' '
-        else:
-            output += n
-        return output
+            return f"{n} {self.__check_end_of_string(n, length)} "
+        return str(n)
 
     def __check_end_of_thousand(self, n, length):
-        ends = {
-          'один': ('а', 'одна'),
-          'два': ('и', 'две'),
-          'три': ('и', 'три'),
-          'четыре': ('и', 'четыре')
-        }
         simple_number = n.split(' ')
         index = len(simple_number) - 1
-        for k in ends:
+        for k in self.thousand_end:
             if re.fullmatch(k, simple_number[index]):
-                result = re.sub(k, ends[k][1], n) + ' '
-                result += NUMBER_CLARIFICATION[length] + ends[k][0]
+                result = re.sub(k, self.thousand_end[k][1], n) + ' '
+                result += self.number_system_name[length] + self.thousand_end[k][0]
                 return result
-        return n + ' ' + NUMBER_CLARIFICATION[length]
+        return f"{n} {self.number_system_name[length]}"
 
     def __check_end_of_string(self, n, length):
-        ends = {'один': '', 'два': 'а', 'три': 'а', 'четыре': 'а'}
         simple_number = n.split(' ')
         index = len(simple_number) - 1
-        for k in ends:
+        for k in self.million_end:
             if re.fullmatch(k, simple_number[index]):
-                return NUMBER_CLARIFICATION[length] + ends[k]
-        return '{0}{1}'.format(NUMBER_CLARIFICATION[length], 'ов')
+                return self.number_system_name[length] + self.million_end[k]
+        
+        return f'{self.number_system_name[length]}{self.end_of_string}'
