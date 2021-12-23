@@ -17,8 +17,8 @@ pip install num-to-str-repr
 ```bash
 from num_to_str_repr.number_converter import NumberConverter
 
-converter = NumberConverter(number)
-converter.convert()
+converter = NumberConverter()
+converter.convert(number)
 ```
 
 ## License

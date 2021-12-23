@@ -2,131 +2,28 @@
 ''' Convert number to string '''
 import re
 
+from constant import NUMBER_CLARIFICATION, NUMBER_DICTS
+
 
 class NumberConverter:
-    def __init__(self, number):
-        self.number = number
-        self.dict_numbers = {}
-        self.__complete_dictionary()
-
-    simple_number = (
-        'ноль',
-        'один',
-        'два',
-        'три',
-        'четыре',
-        'пять',
-        'шесть',
-        'семь',
-        'восемь',
-        'девять'
-    )
-
-    number_clarification = {
-        2: 'тысяч',
-        3: 'миллион',
-        4: 'миллиард',
-        5: 'триллион',
-        6: 'квадриллион',
-        7: 'квинтиллион',
-        8: 'секстиллион',
-        9: 'септиллион',
-        10: 'октиллион',
-        11: 'нониллион',
-        12: 'дециллион',
-        13: 'ундециллион',
-        14: 'додециллион',
-        15: 'тредециллион',
-        16: 'кваттуордециллион',
-        17: 'квиндециллион',
-        18: 'cедециллион',
-        19: 'септдециллион',
-        20: 'дуодевигинтиллион',
-        21: 'ундевигинтиллион',
-        22: 'вигинтиллион',
-        23: 'анвигинтиллион',
-        24: 'дуовигинтиллион',
-        25: 'тревигинтиллион',
-        26: 'кватторвигинтиллион',
-        27: 'квинвигинтиллион',
-        28: 'сексвигинтиллион',
-        29: 'септемвигинтиллион',
-        30: 'октовигинтиллион',
-        31: 'новемвигинтиллион',
-        32: 'тригинтиллион',
-        33: 'антригинтиллион',
-        34: 'гугол'
-    }
-
-    def __complete_dictionary(self):
-        for i in range(10):
-            self.dict_numbers[i] = []
-            self.dict_numbers[i].append(self.simple_number[i])
-            if i == 0:
-                continue
-            else:
-                self.__complete_dozen(i)
-                self.__complete_hundred(i)
-
-    def __complete_dozen_for_one(self, i):
-        end = 'надцать'
-        dozens = []
-        helper = {
-            0: 'десять',
-            1: '{0}{1}'.format(self.simple_number[1], end),
-            2: '{0}{1}{2}'.format(self.simple_number[2][:-1], 'е', end),
-            3: '{0}{1}'.format(self.simple_number[3], end),
-        }
-        for y in range(10):
-            if y in helper:
-                dozens.append(helper[y])
-            else:
-                dozens.append('{0}{1}'.format(self.simple_number[y][:-1], end))
-        self.dict_numbers[i].append(dozens)
-
-    def __complete_dozen(self, i):
-        helper = {
-            2: '{0}{1}'.format(self.simple_number[2], 'дцать'),
-            3: '{0}{1}'.format(self.simple_number[3], 'дцать'),
-            4: 'сорок',
-            9: '{0}{1}'.format(self.simple_number[9][:-2], 'носто'),
-        }
-        if i in helper:
-            self.dict_numbers[i].append(helper[i])
-        elif i == 1:
-            self.__complete_dozen_for_one(i)
-        else:
-            self.dict_numbers[i].append('{0}{1}'.format(self.simple_number[i], 'десят'))
-
-    def __complete_hundred(self, i):
-        helper = {
-          1: 'сто',
-          2: '{0}{1}'.format(self.simple_number[2][:-1], 'ести'),
-          3: '{0}{1}'.format(self.simple_number[3], 'ста'),
-          4: '{0}{1}'.format(self.simple_number[4], 'ста')
-        }
-        if i in helper:
-            self.dict_numbers[i].append(helper[i])
-        else:
-            self.dict_numbers[i].append('{0}{1}'.format(self.simple_number[i], 'сот'))
 
     def __get_simple_number(self, n):
-        return self.dict_numbers[int(n)][0]
+        return NUMBER_DICTS[int(n)][0]
 
     def __get_from_ten_to_twenty(self, n):
         n = str(int(n))
         first, second = map(int, n)
-        return self.dict_numbers[first][1][second]
+        return NUMBER_DICTS[first][1][second]
 
     def __get_dozen_dict(self, n):
         n = str(int(n))
         first, second = map(int, n)
         if first and second != 0:
-            result = self.dict_numbers[first][1]
-            result += ' ' + self.dict_numbers[second][0]
+            result = NUMBER_DICTS[first][1]
+            result += ' ' + NUMBER_DICTS[second][0]
             return result
         else:
-            return self.dict_numbers[first][1]
+            return NUMBER_DICTS[first][1]
 
     def __get_dozen_number(self, n):
         num_range = {
@@ -140,7 +37,7 @@ class NumberConverter:
         return ''
 
     def __get_hundread_dict(self, n):
-        result = self.dict_numbers[int(n[0])][2]
+        result = NUMBER_DICTS[int(n[0])][2]
         result += ' {}'.format(self.__get_dozen_number(n[1:]))
         return result
 
@@ -155,9 +52,10 @@ class NumberConverter:
                 return key(n)
         return '000'
 
-    def __split_number(self):
+    def __split_number(self, number: int) -> list:
+        """ Split number to simple, dozen and hundred """
         res = []
-        n_without_zero = str(int(self.number))
+        n_without_zero = str(int(number))
         convert_function = (
           (self.__get_hundred_number, 3),
           (self.__get_simple_number, 1),
@@ -170,19 +68,18 @@ class NumberConverter:
             n_without_zero = n_without_zero[slice_num:]
         return res
 
-    def convert(self):
-        numbers = self.__split_number()
+    def convert(self, number):
+        numbers = self.__split_number(number)
         length = int(len(numbers))
         if length > 34:
-            return 'The number {} too big'.format(self.number)
+            return 'The number {} too big'.format(number)
         output = ''
         for i in numbers:
             if i == '000':
                 length -= 1
                 continue
-            else:
-                output += self.__add_clarification(i, length)
-                length -= 1
+            output += self.__add_clarification(i, length)
+            length -= 1
         return output.replace('  ', ' ')
 
     def __add_clarification(self, n, length):
@@ -207,9 +104,9 @@ class NumberConverter:
         for k in ends:
             if re.fullmatch(k, simple_number[index]):
                 result = re.sub(k, ends[k][1], n) + ' '
-                result += self.number_clarification[length] + ends[k][0]
+                result += NUMBER_CLARIFICATION[length] + ends[k][0]
                 return result
-        return n + ' ' + self.number_clarification[length]
+        return n + ' ' + NUMBER_CLARIFICATION[length]
 
     def __check_end_of_string(self, n, length):
         ends = {'один': '', 'два': 'а', 'три': 'а', 'четыре': 'а'}
@@ -217,5 +114,5 @@ class NumberConverter:
         index = len(simple_number) - 1
         for k in ends:
             if re.fullmatch(k, simple_number[index]):
-                return self.number_clarification[length] + ends[k]
-        return '{0}{1}'.format(self.number_clarification[length], 'ов')
+                return NUMBER_CLARIFICATION[length] + ends[k]
+        return '{0}{1}'.format(NUMBER_CLARIFICATION[length], 'ов')
