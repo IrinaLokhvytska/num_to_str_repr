@@ -18,7 +18,8 @@ pip install num-to-str-repr
 from num_to_str_repr.number_converter import NumberConverter
 
 converter = NumberConverter()
-converter.convert(number)
+converter.convert(789_567_361_890_000_321)
+семьсот восемьдесят девять квадриллионов пятьсот шестьдесят семь триллионов триста шестьдесят один миллиард восемьсот девяносто миллионов триста двадцать один
 ```
 
 By default the language is Russian.
@@ -26,7 +27,8 @@ By default the language is Russian.
 from num_to_str_repr.number_converter import NumberConverter
 
 converter = NumberConverter("UA")
-converter.convert(number)
+converter.convert(789_567_361_890_000_321)
+сімсот вісімдесят дев'ять квадрильйонів п'ятсот шістдесят сім трильйонів триста шістдесят один мільярд вісімсот дев'яносто мільйонів триста двадцять один
 ```
 
 ## License
