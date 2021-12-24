@@ -2,7 +2,7 @@
 """ Convert number to the string representation """
 import re
 
-from constant import (
+from num_to_str_repr.constant import (
     NUMBER_SYSTEM_NAME,
     NUMBER_DICTS,
     END_OF_NUMBER,
@@ -24,9 +24,37 @@ class NumberConverter:
     def convert(self, number: float) -> str:
         """ Convert number to the string representation """
         self.__validate_if_number_is_valid(number)
+        if "." not in str(number):
+            return self.__return_string_representation(int(number))
+        start_n, end_n = map(int, str(number).split("."))
+        if not end_n:
+            # For example 2.00 is the same as 2
+            return self.__return_string_representation(start_n)
+        int_end = self.__return_string_representation(start_n)
+        float_end = self.__return_string_representation(end_n, max_length=1)
+        real_output = self.__check_end_of_string_for_float_number(int_end, start_n)
+        float_output = self.__check_end_of_string_for_float_number(float_end, end_n, False)
+        return f"{real_output} {float_output}".replace('  ', ' ')
+    
+    def __check_end_of_string_for_float_number(self, float_str:str, number:int, real:bool=True) -> str:
+        """ Check the end of string for the real and float number """
+        if real:
+            str_end = self.end_of_number["float_end"]["int"]
+        else:
+            str_end = self.end_of_number["float_end"]["float"][len(str(number))-1]
+        str_end = str_end[0] if float_str.endswith("один") else str_end[1]
+        thousand_end = self.end_of_number["thousand"]
+        for k in thousand_end:
+            if float_str.endswith(k):
+                float_str = re.sub(k, thousand_end[k][1], float_str)
+        output = f'{float_str} {str_end}'
+        return output
+
+    def __return_string_representation(self, number: float, max_length: int=34) -> str:
+        """ Return string representation """
         numbers = self.__split_number(abs(number))
         length = int(len(numbers))
-        self.__validate_if_number_is_supported(number, length)
+        self.__validate_if_number_is_supported(number, length, max_length)
         output = "" if number >= 0 else f"{self.end_of_number['start_of_string']} "
         for i in numbers:
             if i == ZEROS:
@@ -39,13 +67,13 @@ class NumberConverter:
     def __validate_if_number_is_valid(self, number: float) -> None:
         """ Validate if number is int or float, otherwise raise exception """
         try:
-            int(number)
+            float(number)
         except ValueError:
             raise ValueError(f"The {number} is not number")
 
-    def __validate_if_number_is_supported(self, number: float, length: int) -> None:
-        """ The supported number in range [-googol, googol] """
-        if length > 34:
+    def __validate_if_number_is_supported(self, number: float, length: int, max_length:int) -> None:
+        """ The supported number for int is in range [-googol, googol] """
+        if length > max_length:
             raise ValueError(f"The number {number} is too big")
 
     def __split_number(self, number: int) -> list:
@@ -140,5 +168,4 @@ class NumberConverter:
         for k in million_end:
             if re.fullmatch(k, simple_number[index]):
                 return self.number_system_name[length] + million_end[k]
-        
         return f'{self.number_system_name[length]}{self.end_of_number["end_of_string"]}'

@@ -1,7 +1,6 @@
 import unittest
 
-from number_converter import NumberConverter
-
+from num_to_str_repr import number_converter
 
 
 class TestStringMethods(unittest.TestCase):
@@ -44,25 +43,25 @@ class TestStringMethods(unittest.TestCase):
     )
 
     def test_convert_number_ru(self):
-        converter = NumberConverter()
+        converter = number_converter.NumberConverter()
         for idx, num in enumerate(self.test_numbers):
             str_repr = converter.convert(num)
             self.assertEqual(self.ru_str[idx], str_repr)
 
     def test_convert_number_ua(self):
-        converter = NumberConverter("UA")
+        converter = number_converter.NumberConverter("UA")
         for idx, num in enumerate(self.test_numbers):
             str_repr = converter.convert(num)
             self.assertEqual(self.ua_str[idx], str_repr)
     
     def test_unsupported_language(self):
         try:
-            NumberConverter("EN")
+            number_converter.NumberConverter("EN")
         except TypeError as exc:
             self.assertEqual("The language is not supported: EN", str(exc))
     
     def test_large_number(self):
-        converter = NumberConverter()
+        converter = number_converter.NumberConverter()
         number = -345_758_678_111_346_678_982_345_096_567_372_111_678_983_467_987_987_678_854_789_142_567_985_789_890_456_875_111_000_890_000_000_879_000_321
         try:
             converter.convert(number)
@@ -70,12 +69,80 @@ class TestStringMethods(unittest.TestCase):
             self.assertEqual(f"The number {number} is too big", str(exc))
     
     def test_incorrect_number(self):
-        converter = NumberConverter()
+        converter = number_converter.NumberConverter()
         number = "ecneknc"
         try:
             converter.convert(number)
         except ValueError as exc:
             self.assertEqual("The ecneknc is not number", str(exc))
+    
+    def test_str_number(self):
+        converter = number_converter.NumberConverter()
+        number = "-55"
+        str_repr = converter.convert(number)
+        self.assertEqual("минус пятьдесят пять", str_repr)
+    
+    def test_float_number_with_zero(self):
+        converter = number_converter.NumberConverter()
+        number = "-55.00"
+        str_repr = converter.convert(number)
+        self.assertEqual("минус пятьдесят пять", str_repr)
+    
+    def test_float_number(self):
+        converter = number_converter.NumberConverter()
+        test_numbers = {
+            "-55.23": (
+                "минус пятьдесят пять целых двадцать три сотых",
+                "мінус п'ятдесят п'ять цілих двадцять три сотих"
+            ),
+            "2.0": (
+                "два",
+                "два"
+            ),
+            100.2: (
+                "сто целых две десятых",
+                "сто цілих дві десятих"
+            ),
+            534.321: (
+                "пятьсот тридцать четыре целых триста двадцать одна тысячная",
+                "п'ятсот тридцять чотири цілих триста двадцять одна тисячна"
+            ),
+            1.2: (
+                "одна целая две десятых",
+                "одна ціла дві десятих"
+            ),
+            121.251: (
+                "сто двадцать одна целая двести пятьдесят одна тысячная",
+                "сто двадцять одна ціла двісті п'ятдесят одна тисячна"
+            ),
+            132.41: (
+                "сто тридцать две целых сорок одна сотая",
+                "сто тридцять дві цілих сорок одна сота"
+            ),
+            12.1: (
+                "двенадцать целых одна десятая",
+                "дванадцять цілих одна десята"
+            )
+        }
+        for num, exp in test_numbers.items():
+            str_repr = converter.convert(num)
+            self.assertEqual(
+                exp[0], str_repr
+            )
+        converter = number_converter.NumberConverter("UA")
+        for num, exp in test_numbers.items():
+            str_repr = converter.convert(num)
+            self.assertEqual(
+                exp[1], str_repr
+            )
+
+    def test_big_float_number(self):
+        converter = number_converter.NumberConverter()
+        number = 3213
+        try:
+            converter.convert(534.3213)
+        except ValueError as exc:
+            self.assertEqual(f"The number {number} is too big", str(exc))
 
 
 if __name__ == '__main__':

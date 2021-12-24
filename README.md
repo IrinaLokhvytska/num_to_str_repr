@@ -1,6 +1,7 @@
 # NUM_TO_STR_REPR 
 
-Simple module that convert the number to the Russian and Ukrainian string representation.
+Simple package that converts numbers (int and float)
+to the Russian and Ukrainian string representation.
 
 The supported number in range [-googol, googol].
 
@@ -14,21 +15,38 @@ pip install num-to-str-repr
 
 ## Example
 
-```bash
-from num_to_str_repr.number_converter import NumberConverter
-
-converter = NumberConverter()
-converter.convert(789_567_361_890_000_321)
-семьсот восемьдесят девять квадриллионов пятьсот шестьдесят семь триллионов триста шестьдесят один миллиард восемьсот девяносто миллионов триста двадцать один
-```
-
 By default the language is Russian.
 ```bash
 from num_to_str_repr.number_converter import NumberConverter
 
-converter = NumberConverter("UA")
+converter = NumberConverter()
+
+# Int number
 converter.convert(789_567_361_890_000_321)
-сімсот вісімдесят дев'ять квадрильйонів п'ятсот шістдесят сім трильйонів триста шістдесят один мільярд вісімсот дев'яносто мільйонів триста двадцять один
+"семьсот восемьдесят девять квадриллионов пятьсот шестьдесят семь триллионов триста шестьдесят один миллиард восемьсот девяносто миллионов триста двадцать один"
+
+# Float number
+converter.convert(534.321)
+"пятьсот тридцать четыре целых триста двадцать одна тысячная"
+```
+
+```bash
+from num_to_str_repr.number_converter import NumberConverter
+
+converter = NumberConverter("UA")
+
+# Int number
+converter.convert(789_567_361_890_000_321)
+"сімсот вісімдесят дев'ять квадрильйонів п'ятсот шістдесят сім трильйонів триста шістдесят один мільярд вісімсот дев'яносто мільйонів триста двадцять один"
+
+# Float number
+converter.convert(132.41)
+"сто тридцять дві цілих сорок одна сота"
+```
+
+## Run tests
+```bash
+python3 -m unittest tests.num_to_str_repr
 ```
 
 ## License
