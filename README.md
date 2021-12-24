@@ -2,7 +2,7 @@
 
 Simple module that convert the number to the Russian and Ukrainian string representation.
 
-Start number - 0, end number -googol.
+The supported number in range [-googol, googol].
 
 ## Installation
 

@@ -63,7 +63,7 @@ class TestStringMethods(unittest.TestCase):
     
     def test_large_number(self):
         converter = NumberConverter()
-        number = 345_758_678_111_346_678_982_345_096_567_372_111_678_983_467_987
+        number = -345_758_678_111_346_678_982_345_096_567_372_111_678_983_467_987_987_678_854_789_142_567_985_789_890_456_875_111_000_890_000_000_879_000_321
         try:
             converter.convert(number)
         except ValueError as exc:
